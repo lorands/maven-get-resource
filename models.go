@@ -1,7 +1,7 @@
 package resource
 
 type Source struct {
-	URL         string `json:"source_url"`
+	URL         string `json:"url"`
 	Artifact    string `json:"artifact"`
 	Username    string `json:"username"`
 	Password    string `json:"password"`

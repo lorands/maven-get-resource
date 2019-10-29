@@ -27,10 +27,23 @@ func (in InResource) Download() error {
 		"settings.xml",
 		"org.apache.maven.plugins:maven-dependency-plugin:3.1.1:get",
 		fmt.Sprintf("-Drepository.url=%s", in.Source.URL),
-		fmt.Sprintf("-Drepository.username=%s", in.Source.Username),
-		fmt.Sprintf("-Drepository.password=%s", in.Source.Password),
 		fmt.Sprintf("-Dartifact=%s", gav),
 		"-Dtransitive=false",
+	}
+
+	if len(in.Source.Username) > 0 {
+		args = append(args,
+			fmt.Sprintf("-Drepository.username=%s", in.Source.Username),
+			fmt.Sprintf("-Drepository.password=%s", in.Source.Password),
+			)
+	}
+
+	if in.Source.Verbose {
+		dargs := args
+		if len(dargs) > 6 {
+			dargs[len(dargs)-1] = "<deducted>" //passwd
+		}
+		_, _ = fmt.Fprintf(os.Stderr, "About to run ./mvnw in directory: [%s] with arguments: %v", in.ResourceDir, dargs)
 	}
 
 	if err := runCmd(in.ResourceDir, "./mvnw", args); err != nil {

@@ -56,7 +56,7 @@ func TestInResource_Download(t *testing.T) {
 
 	err := in.Download()
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Invokation failed: %v", err)
 	}
 
 	//check if files are there...
