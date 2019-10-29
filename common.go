@@ -17,8 +17,6 @@ import (
 
 
 func (in InResource) Download() error {
-	//archivePath := filepath.Join(srcDir, archiveFileName)
-	//pomPath := filepath.Join(srcDir, pomFileName)
 
 	gav := fmt.Sprintf("%s:%s",in.Source.Artifact, in.Version.Version)
 
@@ -39,11 +37,7 @@ func (in InResource) Download() error {
 	}
 
 	if in.Source.Verbose {
-		dargs := args
-		if len(dargs) > 6 {
-			dargs[len(dargs)-1] = "<deducted>" //passwd
-		}
-		_, _ = fmt.Fprintf(os.Stderr, "About to run ./mvnw in directory: [%s] with arguments: %v", in.ResourceDir, dargs)
+		_, _ = fmt.Fprintf(os.Stderr, "About to run ./mvnw in directory: [%s] with arguments: %v", in.ResourceDir, args)
 	}
 
 	if err := runCmd(in.ResourceDir, "./mvnw", args); err != nil {

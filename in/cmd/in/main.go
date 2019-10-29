@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 )
 
-var trace bool
 
 func main() {
 	var request in.Request
@@ -18,25 +17,37 @@ func main() {
 	destinationDir := os.Args[1]
 	resourceDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		tracelog("Fail to get resource directory! Bailing out.")
+		_ = fmt.Errorf("fail to get resource directory! Bailing out: %v", err)
 		os.Exit(2)
 	}
 
-	tracelog("===> IN!")
-
 	inputRequest(&request)
 
-	trace = request.Source.Verbose
+	//validate
+	if len(request.Version.Version) <= 0 {
+		_ = fmt.Errorf("missing version")
+		os.Exit(3)
+	}
+
+	if len(request.Source.Artifact) <= 0 {
+		_ = fmt.Errorf("missing artifact definition")
+		os.Exit(4)
+	}
+
+	if len(request.Source.URL) <= 0 {
+		_ = fmt.Errorf("missing repository URL")
+		os.Exit(5)
+	}
+
 	version := request.Version.Version
 
 	inResource := resource.InResource{
-		Source:         resource.Source{},
-		Version:        resource.Version{},
+		Source:         request.Source,
+		Version:        request.Version,
 		DestinationDir: destinationDir,
 		ResourceDir:    resourceDir,
 	}
 
-	//version = resource.readIfFile(version)
 	if err := inResource.Download(); err != nil {
 		fatal("Fail to process.", err)
 	}
@@ -56,11 +67,7 @@ func fatal(message string, err error) {
 }
 
 func inputRequest(request *in.Request) {
-	//reader := bufio.NewReader(os.Stdin)
-	//text, _ := reader.ReadString('\n')
-	//tracelog("IN: stdin: %s\n", text)
 	if err := json.NewDecoder(os.Stdin).Decode(request); err != nil {
-	//if err := json.Unmarshal([]byte(text), request); err != nil {
 		log.Fatal("[IN] reading request from stdin: ", err)
 	}
 }
@@ -71,8 +78,3 @@ func outputResponse(response in.Response) {
 	}
 }
 
-func tracelog(message string, args ...interface{}) {
-	if trace {
-		fmt.Fprintf(os.Stderr, message, args...)
-	}
-}
